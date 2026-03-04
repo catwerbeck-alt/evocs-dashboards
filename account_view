@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EVOCS Command Center</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#080f1e;font-family:'Inter',sans-serif;color:#fff;min-height:100vh}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const BG="#080f1e",GREEN="#22c55e",GREEN_D="#166534",AMBER="#f59e0b",AMBER_D="#92400e",RED="#ef4444",RED_D="#7f1d1d",BLUE="#60a5fa",PURPLE="#a78bfa";
+const CARD="rgba(255,255,255,0.05)",BORDER="rgba(255,255,255,0.10)";
+const SC={green:GREEN,amber:AMBER,red:RED};
+const SBG={green:GREEN_D+"44",amber:AMBER_D+"44",red:RED_D+"44"};
+const SBD={green:GREEN+"44",amber:AMBER+"44",red:RED+"44"};
+const SLab={green:"ON TRACK",amber:"AT RISK",red:"BLOCKED"};
+
+const initiatives=[
+  {id:1,name:"Operations & Tools",status:"green",progress:78},
+  {id:2,name:"Project Delivery",status:"amber",progress:54,risk:"Resource contention on 3 active sprints",decision:"Approve contractor surge capacity by EOW"},
+  {id:3,name:"Company Structure",status:"green",progress:82},
+  {id:4,name:"Finance Systems",status:"red",progress:31,risk:"ERP migration blocked — vendor SLA breach",decision:"Escalate to CTO: Accept delay or switch vendor"},
+  {id:5,name:"Product/Services",status:"amber",progress:61,risk:"Scope creep detected in 2 workstreams",decision:"CCB review required before sprint 14"},
+  {id:6,name:"Marketing",status:"green",progress:91},
+  {id:7,name:"People/Talent",status:"red",progress:22,risk:"3 critical roles unfilled — Q1 delivery at risk",decision:"Approve revised comp bands to unblock hiring"},
+  {id:8,name:"Partnerships",status:"amber",progress:47,risk:"Contract negotiation stalled 6 weeks",decision:"Executive sponsor to re-engage partner CEO"},
+];
+
+const velData=[
+  {m:"Oct",n:8,a:18,d:12},{m:"Nov",n:11,a:21,d:14},{m:"Dec",n:7,a:19,d:16},
+  {m:"Jan",n:14,a:23,d:17},{m:"Feb",n:12,a:23,d:18},{m:"Mar",n:9,a:20,d:20},
+];
+
+function Card({children,style={}}){
+  return <div style={{background:CARD,border:`1px solid ${BORDER}`,borderRadius:14,padding:18,backdropFilter:"blur(10px)",boxShadow:"0 8px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07)",...style}}>{children}</div>;
+}
+function Label({children,style={}}){
+  return <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:"rgba(255,255,255,0.35)",textTransform:"uppercase",marginBottom:10,...style}}>{children}</div>;
+}
+function Divider(){return <div style={{height:1,background:"rgba(255,255,255,0.07)",margin:"12px 0"}}/>;}
+
+function HealthRing({pct}){
+  const r=52,cx=68,cy=68,circ=2*Math.PI*r,fill=(pct/100)*circ;
+  const col=pct>=70?GREEN:pct>=50?AMBER:RED;
+  return(
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+      <svg width={136} height={136} viewBox="0 0 136 136">
+        <defs><filter id="g1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={10}/>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={10} strokeDasharray={`${fill} ${circ}`} strokeLinecap="round" transform="rotate(-90 68 68)" style={{filter:`drop-shadow(0 0 10px ${col})`}}/>
+        <circle cx={cx} cy={cy} r={38} fill="rgba(0,0,0,0.4)" stroke="rgba(255,255,255,0.05)" strokeWidth={1}/>
+        <text x={cx} y={cy-10} textAnchor="middle" fill={col} fontSize={24} fontWeight={800} fontFamily="monospace" style={{filter:`drop-shadow(0 0 6px ${col})`}}>{pct}%</text>
+        <text x={cx} y={cy+8} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize={9} fontFamily="sans-serif">PORTFOLIO</text>
+        <text x={cx} y={cy+20} textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize={9} fontFamily="sans-serif">HEALTH</text>
+      </svg>
+      <div style={{display:"flex",gap:10,marginTop:4}}>
+        {[{c:GREEN,l:"3 Green"},{c:AMBER,l:"3 Amber"},{c:RED,l:"2 Red"}].map(s=>(
+          <span key={s.l} style={{fontSize:10,color:s.c,display:"flex",alignItems:"center",gap:4}}>
+            <span style={{width:7,height:7,borderRadius:"50%",background:s.c,display:"inline-block",boxShadow:`0 0 6px ${s.c}`}}/>
+            {s.l}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SpendTicker(){
+  const [v,setV]=useState(1243600);
+  useEffect(()=>{const t=setInterval(()=>setV(x=>x+Math.floor(Math.random()*600-100)),2200);return()=>clearInterval(t);},[]);
+  const pct=(v/4500000)*100;
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
+        <span style={{fontSize:34,fontWeight:900,fontFamily:"monospace",color:BLUE,textShadow:`0 0 20px ${BLUE}88`,letterSpacing:1}}>${(v/1e6).toFixed(3)}M</span>
+        <span style={{fontSize:11,color:"rgba(255,255,255,0.4)",marginBottom:4}}>of $4.500M total</span>
+      </div>
+      <div style={{height:6,borderRadius:3,background:"rgba(255,255,255,0.08)",marginTop:8,overflow:"hidden"}}>
+        <div style={{width:`${pct}%`,height:"100%",borderRadius:3,background:`linear-gradient(90deg,${BLUE},${PURPLE})`,boxShadow:`0 0 10px ${BLUE}99`,transition:"width 0.6s"}}/>
+      </div>
+      <Divider/>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+        {[{l:"Contracted",v:"$2.100M",c:"rgba(255,255,255,0.7)"},{l:"Forecasted",v:"$4.500M",c:"rgba(255,255,255,0.7)"},{l:"Variance",v:"-$0.200M",c:GREEN}].map(x=>(
+          <div key={x.l} style={{background:"rgba(255,255,255,0.04)",borderRadius:8,padding:"8px 10px",border:"1px solid rgba(255,255,255,0.07)"}}>
+            <div style={{fontSize:9,color:"rgba(255,255,255,0.35)",marginBottom:3,textTransform:"uppercase",letterSpacing:1}}>{x.l}</div>
+            <div style={{fontSize:13,fontWeight:700,fontFamily:"monospace",color:x.c}}>{x.v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VelocityChart(){
+  const maxV=28,H=120,bW=22;
+  const cols={n:BLUE,a:PURPLE,d:GREEN};
+  const keys=["n","a","d"];
+  const labels={n:"New/Assessing",a:"In Progress",d:"Completed"};
+  const groupW=keys.length*bW+(keys.length-1)*2+6;
+  const totalW=velData.length*groupW+40;
+  return(
+    <div>
+      <svg width="100%" viewBox={`0 0 ${totalW} ${H+36}`} preserveAspectRatio="xMidYMid meet">
+        <defs>{keys.map(k=><linearGradient key={k} id={`vg-${k}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={cols[k]} stopOpacity="1"/><stop offset="100%" stopColor={cols[k]} stopOpacity="0.25"/></linearGradient>)}</defs>
+        {[0,7,14,21,28].map(v=>{const y=H-(v/maxV)*H;return(<g key={v}><line x1={32} x2={totalW} y1={y} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth={1}/><text x={28} y={y+4} textAnchor="end" fill="rgba(255,255,255,0.25)" fontSize={8} fontFamily="monospace">{v}</text></g>);})}
+        {velData.map((d,i)=>{const gx=36+i*groupW;return(<g key={i}>{keys.map((k,j)=>{const bh=(d[k]/maxV)*H;return<rect key={k} x={gx+j*(bW+2)} y={H-bh} width={bW} height={bh} fill={`url(#vg-${k})`} rx={3} style={{filter:`drop-shadow(0 0 4px ${cols[k]}88)`}}/>;})}<text x={gx+(keys.length*(bW+2))/2-2} y={H+14} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize={9} fontFamily="sans-serif">{d.m}</text></g>);})}
+      </svg>
+      <div style={{display:"flex",gap:16,marginTop:4}}>{keys.map(k=><div key={k} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:10,height:10,borderRadius:2,background:cols[k]}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.4)"}}>{labels[k]}</span></div>)}</div>
+    </div>
+  );
+}
+
+function FunnelPanel(){
+  const items=[{label:"New / Assessing",v:12,total:53,c:BLUE},{label:"In Progress",v:23,total:53,c:PURPLE},{label:"Completed",v:18,total:53,c:GREEN}];
+  const widths=["100%","90%","72%"];
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      {items.map((d,i)=>(
+        <div key={i} style={{width:widths[i]}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}}>
+            <span style={{fontSize:11,color:"rgba(255,255,255,0.55)",fontWeight:500}}>{d.label}</span>
+            <span style={{fontFamily:"monospace",fontWeight:800,fontSize:16,color:d.c,textShadow:`0 0 10px ${d.c}88`}}>{d.v}</span>
+          </div>
+          <div style={{height:26,borderRadius:6,background:"rgba(255,255,255,0.05)",overflow:"hidden",position:"relative"}}>
+            <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${(d.v/d.total)*100*1.8}%`,maxWidth:"100%",borderRadius:6,background:`linear-gradient(90deg,${d.c}cc,${d.c}44)`,boxShadow:`0 0 12px ${d.c}77`}}/>
+            <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"rgba(255,255,255,0.35)",fontFamily:"monospace"}}>{Math.round((d.v/53)*100)}%</span>
+          </div>
+        </div>
+      ))}
+      <Divider/>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+        <div style={{background:"rgba(255,255,255,0.04)",borderRadius:8,padding:"8px 12px",border:"1px solid rgba(255,255,255,0.07)"}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:1,marginBottom:3}}>Throughput MoM</div>
+          <div style={{fontSize:18,fontWeight:800,fontFamily:"monospace",color:GREEN}}>+18%</div>
+        </div>
+        <div style={{background:"rgba(255,255,255,0.04)",borderRadius:8,padding:"8px 12px",border:"1px solid rgba(255,255,255,0.07)"}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:1,marginBottom:3}}>Avg Cycle Time</div>
+          <div style={{fontSize:18,fontWeight:800,fontFamily:"monospace",color:AMBER}}>24 days</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HealthGrid({selected,setSelected}){
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:7}}>
+      {initiatives.map(ini=>{
+        const c=SC[ini.status],bg=SBG[ini.status],bd=SBD[ini.status],sel=selected?.id===ini.id;
+        return(
+          <div key={ini.id} onClick={()=>setSelected(sel?null:ini)} style={{padding:"9px 13px",borderRadius:10,cursor:"pointer",background:sel?bg:"rgba(255,255,255,0.03)",border:`1px solid ${sel?c+"88":bd}`,boxShadow:sel?`0 0 16px ${c}33`:"none",transition:"all 0.18s"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <div style={{display:"flex",alignItems:"center",gap:9}}>
+                <div style={{width:9,height:9,borderRadius:"50%",background:c,flexShrink:0,boxShadow:`0 0 8px ${c}`}}/>
+                <span style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,0.85)"}}>{ini.name}</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{fontFamily:"monospace",fontSize:12,fontWeight:700,color:c}}>{ini.progress}%</span>
+                <span style={{fontSize:9,padding:"2px 8px",borderRadius:12,background:bg,border:`1px solid ${bd}`,color:c,fontWeight:700,letterSpacing:1}}>{SLab[ini.status]}</span>
+              </div>
+            </div>
+            <div style={{height:4,borderRadius:2,background:"rgba(255,255,255,0.07)"}}>
+              <div style={{width:`${ini.progress}%`,height:"100%",borderRadius:2,background:`linear-gradient(90deg,${c},${c}66)`,boxShadow:`0 0 6px ${c}77`,transition:"width 0.8s"}}/>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function RaidPanel(){
+  const blocked=initiatives.filter(i=>i.status!=="green"&&i.decision);
+  const counts=[{l:"Open Risks",v:5,c:RED},{l:"Open Actions",v:12,c:AMBER},{l:"Open Issues",v:3,c:"#fb923c"},{l:"Pending Decisions",v:4,c:PURPLE}];
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:0}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:14}}>
+        {counts.map(x=>(
+          <div key={x.l} style={{textAlign:"center",padding:"8px 4px",background:"rgba(255,255,255,0.04)",borderRadius:8,border:"1px solid rgba(255,255,255,0.07)"}}>
+            <div style={{fontSize:22,fontWeight:800,fontFamily:"monospace",color:x.c,textShadow:`0 0 12px ${x.c}66`}}>{x.v}</div>
+            <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",marginTop:2,textTransform:"uppercase",letterSpacing:1}}>{x.l}</div>
+          </div>
+        ))}
+      </div>
+      <Divider/>
+      <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:"rgba(255,255,255,0.35)",textTransform:"uppercase",margin:"4px 0 10px"}}>Critical Decisions Pending</div>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        {blocked.map(item=>{
+          const c=SC[item.status];
+          return(
+            <div key={item.id} style={{borderRadius:10,border:`1px solid ${c}55`,background:`linear-gradient(135deg,${c}0d,rgba(0,0,0,0.2))`,padding:"12px 14px",boxShadow:`0 2px 20px ${c}22`}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:7}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <div style={{width:8,height:8,borderRadius:"50%",background:c,boxShadow:`0 0 8px ${c}`}}/>
+                  <span style={{fontSize:12,fontWeight:700,color:"rgba(255,255,255,0.9)"}}>{item.name}</span>
+                </div>
+                <span style={{fontSize:9,padding:"2px 8px",borderRadius:12,background:SBG[item.status],border:`1px solid ${c}55`,color:c,fontWeight:700,letterSpacing:1}}>{SLab[item.status]}</span>
+              </div>
+              <div style={{display:"flex",gap:6,alignItems:"flex-start",marginBottom:7,padding:"6px 10px",borderRadius:7,background:"rgba(0,0,0,0.25)",border:"1px solid rgba(255,255,255,0.06)"}}>
+                <span style={{fontSize:10,color:AMBER,fontWeight:700,flexShrink:0}}>⚠ RISK</span>
+                <span style={{fontSize:10,color:"rgba(255,255,255,0.55)",lineHeight:1.4}}>{item.risk}</span>
+              </div>
+              <div style={{display:"flex",gap:6,alignItems:"flex-start",padding:"6px 10px",borderRadius:7,background:`${c}18`,border:`1px solid ${c}44`}}>
+                <span style={{fontSize:10,color:c,fontWeight:700,flexShrink:0}}>→ DECISION</span>
+                <span style={{fontSize:10,color:"rgba(255,255,255,0.75)",lineHeight:1.4}}>{item.decision}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function App(){
+  const [selected,setSelected]=useState(null);
+  const healthPct=Math.round((initiatives.filter(i=>i.status==="green").length/initiatives.length)*100);
+  return(
+    <div style={{background:BG,minHeight:"100vh",padding:"16px 18px",fontFamily:"'Inter',sans-serif",color:"#fff",backgroundImage:"radial-gradient(ellipse at 15% 15%,rgba(59,130,246,0.10) 0%,transparent 55%),radial-gradient(ellipse at 85% 85%,rgba(139,92,246,0.07) 0%,transparent 55%)"}}>
+      {/* HEADER */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <div>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+            <div style={{width:7,height:7,borderRadius:"50%",background:GREEN,boxShadow:`0 0 8px ${GREEN}`}}/>
+            <span style={{fontSize:10,color:"rgba(255,255,255,0.35)",letterSpacing:3,textTransform:"uppercase"}}>EVOCS · Live Operations Feed</span>
+          </div>
+          <h1 style={{margin:0,fontSize:20,fontWeight:800,letterSpacing:.5,background:"linear-gradient(90deg,#ffffff,#94a3b8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Account Execution Command Center</h1>
+        </div>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          {["ClickUp","Jira"].map(s=>(
+            <div key={s} style={{padding:"4px 12px",borderRadius:20,background:"rgba(255,255,255,0.05)",border:`1px solid ${BORDER}`,fontSize:11,color:"rgba(255,255,255,0.45)",display:"flex",alignItems:"center",gap:6}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:GREEN,boxShadow:`0 0 6px ${GREEN}`}}/>{s}
+            </div>
+          ))}
+          <div style={{fontSize:11,color:"rgba(255,255,255,0.25)",marginLeft:4}}>Q1 2026 · March 03</div>
+        </div>
+      </div>
+      {/* ROW 1 */}
+      <div style={{display:"grid",gridTemplateColumns:"170px 150px 1fr 1fr",gap:12,marginBottom:12}}>
+        <Card style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+          <Label style={{marginBottom:6}}>Account Health</Label>
+          <HealthRing pct={healthPct}/>
+        </Card>
+        <Card style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+          <Label>Open Projects</Label>
+          <div style={{fontSize:60,fontWeight:900,fontFamily:"monospace",lineHeight:1,color:PURPLE,textShadow:`0 0 30px ${PURPLE}99`}}>23</div>
+          <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:4}}>across 8 initiatives</div>
+          <Divider/>
+          <div style={{display:"flex",flexDirection:"column",gap:4,width:"100%"}}>
+            {[{c:GREEN,l:"On Track",n:3},{c:AMBER,l:"At Risk",n:3},{c:RED,l:"Blocked",n:2}].map(x=>(
+              <div key={x.l} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{display:"flex",alignItems:"center",gap:5}}>
+                  <div style={{width:7,height:7,borderRadius:"50%",background:x.c,boxShadow:`0 0 5px ${x.c}`}}/>
+                  <span style={{fontSize:10,color:"rgba(255,255,255,0.4)"}}>{x.l}</span>
+                </div>
+                <span style={{fontSize:11,fontFamily:"monospace",color:x.c,fontWeight:700}}>{x.n}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card><Label>Spend to Date</Label><SpendTicker/></Card>
+        <Card>
+          <div style={{height:"100%",display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+            <div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <Label style={{marginBottom:0}}>Execution Impact</Label>
+                <span style={{fontSize:9,padding:"3px 10px",borderRadius:12,background:"rgba(34,197,94,0.15)",border:`1px solid ${GREEN}55`,color:GREEN,fontWeight:700,letterSpacing:1}}>● LIVE</span>
+              </div>
+              <p style={{fontSize:13,lineHeight:1.8,color:"rgba(255,255,255,0.72)",margin:0}}>
+                EVOCS is executing <strong style={{color:PURPLE}}>23 active projects</strong> across 8 strategic initiatives. <strong style={{color:GREEN}}>Marketing leads at 91%</strong> completion. Two initiatives are <strong style={{color:RED}}>critically blocked</strong> requiring executive decisions on Finance Systems and People/Talent. Overall delivery posture is <strong style={{color:AMBER}}>Amber — escalation required by EOW.</strong>
+              </p>
+            </div>
+            <Divider/>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
+              {[{l:"On Track",v:3,c:GREEN},{l:"At Risk",v:3,c:AMBER},{l:"Blocked",v:2,c:RED},{l:"Cycle Days",v:24,c:BLUE}].map(x=>(
+                <div key={x.l} style={{textAlign:"center",padding:"8px 4px",background:"rgba(255,255,255,0.04)",borderRadius:8,border:"1px solid rgba(255,255,255,0.07)"}}>
+                  <div style={{fontSize:22,fontWeight:800,fontFamily:"monospace",color:x.c,textShadow:`0 0 10px ${x.c}66`}}>{x.v}</div>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.35)",marginTop:2,textTransform:"uppercase",letterSpacing:1}}>{x.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+      {/* ROW 2 */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+        <Card><Label>Project Velocity — 6-Month Trend</Label><VelocityChart/></Card>
+        <Card><Label>Execution Funnel — Current Pipeline</Label><FunnelPanel/></Card>
+      </div>
+      {/* ROW 3 */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+        <Card>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+            <Label style={{marginBottom:0}}>2026 Initiative Health Grid</Label>
+            <span style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>↖ click to highlight</span>
+          </div>
+          <HealthGrid selected={selected} setSelected={setSelected}/>
+        </Card>
+        <Card>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+            <Label style={{marginBottom:0}}>RAID Log → Decisions Required</Label>
+            <span style={{fontSize:9,padding:"3px 10px",borderRadius:12,background:"rgba(239,68,68,0.18)",border:`1px solid ${RED}55`,color:RED,fontWeight:700,letterSpacing:1}}>5 ACTIONS</span>
+          </div>
+          <RaidPanel/>
+        </Card>
+      </div>
+      <div style={{textAlign:"center",marginTop:14,fontSize:9,color:"rgba(255,255,255,0.15)",letterSpacing:3}}>EVOCS COMMAND CENTER · CONFIDENTIAL · SOURCES: CLICKUP · JIRA · LIVE FEED</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
