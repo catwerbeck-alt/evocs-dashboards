@@ -1,359 +1,197 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>EVOCS CEO Portfolio Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#080f1e;font-family:'Inter',sans-serif;color:#fff;min-height:100vh}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+const BG="#080f1e",GREEN="#22c55e",GREEN_D="#166534",AMBER="#f59e0b",AMBER_D="#92400e",RED="#ef4444",RED_D="#7f1d1d",BLUE="#60a5fa",PURPLE="#a78bfa";
+const SC={green:GREEN,amber:AMBER,red:RED};
+const SBG={green:GREEN_D+"44",amber:AMBER_D+"44",red:RED_D+"44"};
+const SBD={green:GREEN+"55",amber:AMBER+"55",red:RED+"55"};
+const SLB={green:"ON TRACK",amber:"AT RISK",red:"BLOCKED"};
 
-const BG = "#080f1e";
-const GREEN = "#22c55e"; const GREEN_D = "#166534";
-const AMBER = "#f59e0b"; const AMBER_D = "#92400e";
-const RED   = "#ef4444"; const RED_D   = "#7f1d1d";
-const BLUE  = "#60a5fa"; const PURPLE = "#a78bfa";
-const TEAL  = "#2dd4bf";
-
-const SC  = { green: GREEN, amber: AMBER, red: RED };
-const SBG = { green: GREEN_D+"44", amber: AMBER_D+"44", red: RED_D+"44" };
-const SBD = { green: GREEN+"55",   amber: AMBER+"55",   red: RED+"55"   };
-const SLB = { green: "ON TRACK",   amber: "AT RISK",    red: "BLOCKED"  };
-
-const clients = [
-  {
-    id: 1, name: "Meridian Health Group", industry: "Healthcare", segment: "Enterprise",
-    status: "green", health: 91, satisfaction: 96, contractValue: 1200000,
-    projectsTotal: 18, projectsInProgress: 6, projectsCompleted: 12,
-    avgProjectHealth: 89, revenueAtRisk: 0,
-    risk: "Minor scope refinement needed on portal rollout",
-    initiatives: ["Operations & Tools", "Project Delivery", "Marketing"],
-    spend: 480000, budget: 1200000,
-  },
-  {
-    id: 2, name: "Apex Capital Partners", industry: "Finance", segment: "Enterprise",
-    status: "amber", health: 61, satisfaction: 74, contractValue: 2400000,
-    projectsTotal: 31, projectsInProgress: 14, projectsCompleted: 17,
-    avgProjectHealth: 58, revenueAtRisk: 960000,
-    risk: "ERP integration delayed — 3 decisions pending from CTO",
-    initiatives: ["Finance Systems", "Company Structure", "People/Talent"],
-    spend: 1100000, budget: 2400000,
-  },
-  {
-    id: 3, name: "NovaTech Manufacturing", industry: "Manufacturing", segment: "Mid-Market",
-    status: "red", health: 34, satisfaction: 51, contractValue: 880000,
-    projectsTotal: 22, projectsInProgress: 9, projectsCompleted: 13,
-    avgProjectHealth: 31, revenueAtRisk: 880000,
-    risk: "2 critical workstreams blocked — resource gaps + vendor SLA breach",
-    initiatives: ["Operations & Tools", "Product/Services", "Partnerships"],
-    spend: 290000, budget: 880000,
-  },
-  {
-    id: 4, name: "Solaris Energy Corp", industry: "Energy", segment: "Enterprise",
-    status: "green", health: 83, satisfaction: 88, contractValue: 1750000,
-    projectsTotal: 27, projectsInProgress: 11, projectsCompleted: 16,
-    avgProjectHealth: 81, revenueAtRisk: 0,
-    risk: "On track — minor timeline shift on compliance module",
-    initiatives: ["Finance Systems", "Operations & Tools", "Marketing"],
-    spend: 820000, budget: 1750000,
-  },
-  {
-    id: 5, name: "ClearPath Logistics", industry: "Logistics", segment: "Mid-Market",
-    status: "amber", health: 55, satisfaction: 68, contractValue: 640000,
-    projectsTotal: 15, projectsInProgress: 8, projectsCompleted: 7,
-    avgProjectHealth: 52, revenueAtRisk: 320000,
-    risk: "Talent gap slowing delivery — 2 key hires unfilled since Jan",
-    initiatives: ["People/Talent", "Project Delivery", "Partnerships"],
-    spend: 210000, budget: 640000,
-  },
-  {
-    id: 6, name: "Pinnacle Retail Group", industry: "Retail", segment: "Mid-Market",
-    status: "green", health: 78, satisfaction: 82, contractValue: 520000,
-    projectsTotal: 12, projectsInProgress: 5, projectsCompleted: 7,
-    avgProjectHealth: 76, revenueAtRisk: 0,
-    risk: "Smooth execution — Q2 roadmap being finalized",
-    initiatives: ["Marketing", "Product/Services", "Company Structure"],
-    spend: 195000, budget: 520000,
-  },
+const clients=[
+  {id:1,name:"Meridian Health Group",industry:"Healthcare",segment:"Enterprise",status:"green",health:91,satisfaction:96,contractValue:1200000,projectsTotal:18,projectsInProgress:6,projectsCompleted:12,avgProjectHealth:89,revenueAtRisk:0,risk:"Minor scope refinement needed on portal rollout",initiatives:["Operations & Tools","Project Delivery","Marketing"],spend:480000,budget:1200000},
+  {id:2,name:"Apex Capital Partners",industry:"Finance",segment:"Enterprise",status:"amber",health:61,satisfaction:74,contractValue:2400000,projectsTotal:31,projectsInProgress:14,projectsCompleted:17,avgProjectHealth:58,revenueAtRisk:960000,risk:"ERP integration delayed — 3 decisions pending from CTO",initiatives:["Finance Systems","Company Structure","People/Talent"],spend:1100000,budget:2400000},
+  {id:3,name:"NovaTech Manufacturing",industry:"Manufacturing",segment:"Mid-Market",status:"red",health:34,satisfaction:51,contractValue:880000,projectsTotal:22,projectsInProgress:9,projectsCompleted:13,avgProjectHealth:31,revenueAtRisk:880000,risk:"2 critical workstreams blocked — resource gaps + vendor SLA breach",initiatives:["Operations & Tools","Product/Services","Partnerships"],spend:290000,budget:880000},
+  {id:4,name:"Solaris Energy Corp",industry:"Energy",segment:"Enterprise",status:"green",health:83,satisfaction:88,contractValue:1750000,projectsTotal:27,projectsInProgress:11,projectsCompleted:16,avgProjectHealth:81,revenueAtRisk:0,risk:"On track — minor timeline shift on compliance module",initiatives:["Finance Systems","Operations & Tools","Marketing"],spend:820000,budget:1750000},
+  {id:5,name:"ClearPath Logistics",industry:"Logistics",segment:"Mid-Market",status:"amber",health:55,satisfaction:68,contractValue:640000,projectsTotal:15,projectsInProgress:8,projectsCompleted:7,avgProjectHealth:52,revenueAtRisk:320000,risk:"Talent gap slowing delivery — 2 key hires unfilled since Jan",initiatives:["People/Talent","Project Delivery","Partnerships"],spend:210000,budget:640000},
+  {id:6,name:"Pinnacle Retail Group",industry:"Retail",segment:"Mid-Market",status:"green",health:78,satisfaction:82,contractValue:520000,projectsTotal:12,projectsInProgress:5,projectsCompleted:7,avgProjectHealth:76,revenueAtRisk:0,risk:"Smooth execution — Q2 roadmap being finalized",initiatives:["Marketing","Product/Services","Company Structure"],spend:195000,budget:520000},
 ];
 
-const fmt = (n) => n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : `$${(n/1000).toFixed(0)}K`;
+const fmt=n=>n>=1000000?`$${(n/1e6).toFixed(1)}M`:`$${(n/1000).toFixed(0)}K`;
 
-function Card({ children, style = {} }) {
-  return (
-    <div style={{
-      background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)",
-      borderRadius: 14, padding: 18, backdropFilter: "blur(10px)",
-      boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07)", ...style
-    }}>{children}</div>
-  );
+function Card({children,style={}}){return <div style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.10)",borderRadius:14,padding:18,backdropFilter:"blur(10px)",boxShadow:"0 8px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07)",...style}}>{children}</div>;}
+function Label({children,style={}}){return <div style={{fontSize:10,fontWeight:700,letterSpacing:2,color:"rgba(255,255,255,0.35)",textTransform:"uppercase",marginBottom:8,...style}}>{children}</div>;}
+function Divider(){return <div style={{height:1,background:"rgba(255,255,255,0.07)",margin:"12px 0"}}/>;}
+
+function RAGBadge({status}){return <span style={{fontSize:9,padding:"3px 9px",borderRadius:12,background:SBG[status],border:`1px solid ${SBD[status]}`,color:SC[status],fontWeight:700,letterSpacing:1,whiteSpace:"nowrap"}}>{SLB[status]}</span>;}
+
+function MiniBar({value,max,color}){return <div style={{height:4,borderRadius:2,background:"rgba(255,255,255,0.07)",overflow:"hidden",width:"100%"}}><div style={{width:`${(value/max)*100}%`,height:"100%",borderRadius:2,background:color,boxShadow:`0 0 6px ${color}88`}}/></div>;}
+
+function SatisfactionRing({score,size=44}){
+  const r=16,cx=size/2,cy=size/2,circ=2*Math.PI*r,fill=(score/100)*circ;
+  const col=score>=80?GREEN:score>=65?AMBER:RED;
+  return <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={4}/>
+    <circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={4} strokeDasharray={`${fill} ${circ}`} strokeLinecap="round" transform={`rotate(-90 ${cx} ${cy})`} style={{filter:`drop-shadow(0 0 4px ${col})`}}/>
+    <text x={cx} y={cy+4} textAnchor="middle" fill={col} fontSize={9} fontWeight={800} fontFamily="monospace">{score}</text>
+  </svg>;
 }
 
-function Label({ children, style = {} }) {
-  return <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", marginBottom: 8, ...style }}>{children}</div>;
-}
-
-function RAGBadge({ status }) {
-  return (
-    <span style={{ fontSize: 9, padding: "3px 9px", borderRadius: 12, background: SBG[status], border: `1px solid ${SBD[status]}`, color: SC[status], fontWeight: 700, letterSpacing: 1, whiteSpace: "nowrap" }}>
-      {SLB[status]}
-    </span>
-  );
-}
-
-function MiniBar({ value, max, color }) {
-  return (
-    <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.07)", overflow: "hidden", width: "100%" }}>
-      <div style={{ width: `${(value / max) * 100}%`, height: "100%", borderRadius: 2, background: color, boxShadow: `0 0 6px ${color}88` }} />
-    </div>
-  );
-}
-
-function SatisfactionRing({ score, size = 44 }) {
-  const r = 16, cx = size/2, cy = size/2, circ = 2 * Math.PI * r;
-  const fill = (score / 100) * circ;
-  const col = score >= 80 ? GREEN : score >= 65 ? AMBER : RED;
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={4} />
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke={col} strokeWidth={4}
-        strokeDasharray={`${fill} ${circ}`} strokeLinecap="round"
-        transform={`rotate(-90 ${cx} ${cy})`}
-        style={{ filter: `drop-shadow(0 0 4px ${col})` }} />
-      <text x={cx} y={cy + 4} textAnchor="middle" fill={col} fontSize={9} fontWeight={800} fontFamily="monospace">{score}</text>
-    </svg>
-  );
-}
-
-function PortfolioHUD({ clients, onFilter, activeFilter }) {
-  const total = clients.length;
-  const green = clients.filter(c => c.status === "green").length;
-  const amber = clients.filter(c => c.status === "amber").length;
-  const red   = clients.filter(c => c.status === "red").length;
-  const totalAUM = clients.reduce((s, c) => s + c.contractValue, 0);
-  const atRisk   = clients.reduce((s, c) => s + c.revenueAtRisk, 0);
-  const totalProjects = clients.reduce((s, c) => s + c.projectsTotal, 0);
-  const inProgress    = clients.reduce((s, c) => s + c.projectsInProgress, 0);
-  const completed     = clients.reduce((s, c) => s + c.projectsCompleted, 0);
-  const avgHealth = Math.round(clients.reduce((s, c) => s + c.health, 0) / total);
-  const avgSat    = Math.round(clients.reduce((s, c) => s + c.satisfaction, 0) / total);
-
-  const kpis = [
-    { label: "Total AUM", value: fmt(totalAUM), sub: `${total} active clients`, color: BLUE, icon: "◈" },
-    { label: "Portfolio Health", value: `${avgHealth}%`, sub: `Avg across all clients`, color: avgHealth >= 70 ? GREEN : avgHealth >= 50 ? AMBER : RED, icon: "◎" },
-    { label: "Revenue at Risk", value: fmt(atRisk), sub: `${amber + red} clients flagged`, color: atRisk > 0 ? RED : GREEN, icon: "⚠" },
-    { label: "Avg Satisfaction", value: `${avgSat}%`, sub: "Client sat score rollup", color: avgSat >= 80 ? GREEN : avgSat >= 65 ? AMBER : RED, icon: "★" },
-    { label: "Total Projects", value: totalProjects, sub: `${inProgress} active · ${completed} done`, color: PURPLE, icon: "▣" },
+function PortfolioHUD({clients}){
+  const total=clients.length,green=clients.filter(c=>c.status==="green").length,amber=clients.filter(c=>c.status==="amber").length,red=clients.filter(c=>c.status==="red").length;
+  const totalAUM=clients.reduce((s,c)=>s+c.contractValue,0),atRisk=clients.reduce((s,c)=>s+c.revenueAtRisk,0);
+  const totalProjects=clients.reduce((s,c)=>s+c.projectsTotal,0),inProgress=clients.reduce((s,c)=>s+c.projectsInProgress,0),completed=clients.reduce((s,c)=>s+c.projectsCompleted,0);
+  const avgHealth=Math.round(clients.reduce((s,c)=>s+c.health,0)/total),avgSat=Math.round(clients.reduce((s,c)=>s+c.satisfaction,0)/total);
+  const kpis=[
+    {label:"Total AUM",value:fmt(totalAUM),sub:`${total} active clients`,color:BLUE,icon:"◈"},
+    {label:"Portfolio Health",value:`${avgHealth}%`,sub:"Avg across all clients",color:avgHealth>=70?GREEN:avgHealth>=50?AMBER:RED,icon:"◎"},
+    {label:"Revenue at Risk",value:fmt(atRisk),sub:`${amber+red} clients flagged`,color:atRisk>0?RED:GREEN,icon:"⚠"},
+    {label:"Avg Satisfaction",value:`${avgSat}%`,sub:"Client sat score rollup",color:avgSat>=80?GREEN:avgSat>=65?AMBER:RED,icon:"★"},
+    {label:"Total Projects",value:totalProjects,sub:`${inProgress} active · ${completed} done`,color:PURPLE,icon:"▣"},
   ];
-
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 10, marginBottom: 12 }}>
-      {kpis.map((k, i) => (
-        <Card key={i} style={{ padding: "14px 16px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-            <Label style={{ marginBottom: 0 }}>{k.label}</Label>
-            <span style={{ fontSize: 14, color: k.color, opacity: 0.7 }}>{k.icon}</span>
-          </div>
-          <div style={{ fontSize: 26, fontWeight: 900, fontFamily: "monospace", color: k.color, textShadow: `0 0 16px ${k.color}66`, lineHeight: 1.1 }}>{k.value}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 4 }}>{k.sub}</div>
-        </Card>
-      ))}
-    </div>
-  );
+  return <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,marginBottom:12}}>
+    {kpis.map((k,i)=><Card key={i} style={{padding:"14px 16px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+        <Label style={{marginBottom:0}}>{k.label}</Label>
+        <span style={{fontSize:14,color:k.color,opacity:0.7}}>{k.icon}</span>
+      </div>
+      <div style={{fontSize:26,fontWeight:900,fontFamily:"monospace",color:k.color,textShadow:`0 0 16px ${k.color}66`,lineHeight:1.1}}>{k.value}</div>
+      <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:4}}>{k.sub}</div>
+    </Card>)}
+  </div>;
 }
 
-function AlertBar({ clients }) {
-  const flagged = clients.filter(c => c.status !== "green");
-  if (!flagged.length) return null;
-  return (
-    <div style={{ marginBottom: 12, padding: "10px 16px", borderRadius: 10, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-      <span style={{ fontSize: 10, color: RED, fontWeight: 800, letterSpacing: 2, flexShrink: 0 }}>⚠ ATTENTION REQUIRED</span>
-      <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.1)" }} />
-      {flagged.map(c => (
-        <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 20, background: SBG[c.status], border: `1px solid ${SBD[c.status]}` }}>
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: SC[c.status], boxShadow: `0 0 5px ${SC[c.status]}` }} />
-          <span style={{ fontSize: 11, color: SC[c.status], fontWeight: 600 }}>{c.name}</span>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>· {c.health}%</span>
-        </div>
-      ))}
-    </div>
-  );
+function AlertBar({clients}){
+  const flagged=clients.filter(c=>c.status!=="green");
+  if(!flagged.length)return null;
+  return <div style={{marginBottom:12,padding:"10px 16px",borderRadius:10,background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.25)",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+    <span style={{fontSize:10,color:RED,fontWeight:800,letterSpacing:2,flexShrink:0}}>⚠ ATTENTION REQUIRED</span>
+    <div style={{width:1,height:16,background:"rgba(255,255,255,0.1)"}}/>
+    {flagged.map(c=><div key={c.id} style={{display:"flex",alignItems:"center",gap:6,padding:"3px 10px",borderRadius:20,background:SBG[c.status],border:`1px solid ${SBD[c.status]}`}}>
+      <div style={{width:6,height:6,borderRadius:"50%",background:SC[c.status],boxShadow:`0 0 5px ${SC[c.status]}`}}/>
+      <span style={{fontSize:11,color:SC[c.status],fontWeight:600}}>{c.name}</span>
+      <span style={{fontSize:10,color:"rgba(255,255,255,0.35)"}}>· {c.health}%</span>
+    </div>)}
+  </div>;
 }
 
-function ClientRow({ client, isSelected, onClick }) {
-  const c = SC[client.status];
-  const spendPct = (client.spend / client.budget) * 100;
-
-  return (
-    <div onClick={onClick} style={{
-      borderRadius: 12, border: `1px solid ${isSelected ? c + "88" : SBD[client.status]}`,
-      background: isSelected ? SBG[client.status] : "rgba(255,255,255,0.03)",
-      marginBottom: 8, cursor: "pointer", transition: "all 0.18s",
-      boxShadow: isSelected ? `0 0 20px ${c}33` : "none", overflow: "hidden"
-    }}>
-      {/* Main row */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr 2fr", gap: 0, alignItems: "center", padding: "14px 16px" }}>
-
-        {/* Client name + industry */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: c, flexShrink: 0, boxShadow: `0 0 10px ${c}` }} />
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.92)" }}>{client.name}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 1 }}>{client.industry} · {client.segment}</div>
-          </div>
-        </div>
-
-        {/* Health + RAG */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 5, paddingLeft: 8 }}>
-          <RAGBadge status={client.status} />
-          <div style={{ fontSize: 11, fontFamily: "monospace", color: c, fontWeight: 700 }}>{client.health}% health</div>
-        </div>
-
-        {/* Satisfaction ring */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <SatisfactionRing score={client.satisfaction} />
-          <div>
-            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1 }}>CSAT</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontFamily: "monospace" }}>{client.satisfaction}%</div>
-          </div>
-        </div>
-
-        {/* Contract value + spend */}
+function ClientRow({client,isSelected,onClick}){
+  const c=SC[client.status],spendPct=(client.spend/client.budget)*100;
+  return <div onClick={onClick} style={{borderRadius:12,border:`1px solid ${isSelected?c+"88":SBD[client.status]}`,background:isSelected?SBG[client.status]:"rgba(255,255,255,0.03)",marginBottom:8,cursor:"pointer",transition:"all 0.18s",boxShadow:isSelected?`0 0 20px ${c}33`:"none",overflow:"hidden"}}>
+    <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 1.2fr 2fr",gap:0,alignItems:"center",padding:"14px 16px"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:10,height:10,borderRadius:"50%",background:c,flexShrink:0,boxShadow:`0 0 10px ${c}`}}/>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: BLUE }}>{fmt(client.contractValue)}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>Spend: {fmt(client.spend)}</div>
-          <div style={{ marginTop: 4 }}><MiniBar value={client.spend} max={client.budget} color={BLUE} /></div>
-        </div>
-
-        {/* Projects */}
-        <div style={{ paddingLeft: 8 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, fontFamily: "monospace", color: PURPLE, lineHeight: 1 }}>{client.projectsTotal}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>total projects</div>
-          <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-            <span style={{ fontSize: 9, color: AMBER }}>● {client.projectsInProgress} active</span>
-            <span style={{ fontSize: 9, color: GREEN }}>● {client.projectsCompleted} done</span>
-          </div>
-        </div>
-
-        {/* Risk summary */}
-        <div style={{ paddingLeft: 12, borderLeft: "1px solid rgba(255,255,255,0.07)" }}>
-          <div style={{ fontSize: 9, color: client.status === "green" ? GREEN : client.status === "amber" ? AMBER : RED, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>
-            {client.status === "green" ? "✓ Status Note" : client.status === "amber" ? "⚠ Risk" : "✖ Blocker"}
-          </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>{client.risk}</div>
+          <div style={{fontSize:13,fontWeight:700,color:"rgba(255,255,255,0.92)"}}>{client.name}</div>
+          <div style={{fontSize:10,color:"rgba(255,255,255,0.35)",marginTop:1}}>{client.industry} · {client.segment}</div>
         </div>
       </div>
-
-      {/* Expanded detail */}
-      {isSelected && (
-        <div style={{ padding: "0 16px 14px", borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: 4, paddingTop: 14 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10 }}>
-            {[
-              { l: "Avg Project Health", v: `${client.avgProjectHealth}%`, c: client.avgProjectHealth >= 70 ? GREEN : client.avgProjectHealth >= 50 ? AMBER : RED },
-              { l: "Revenue at Risk", v: client.revenueAtRisk > 0 ? fmt(client.revenueAtRisk) : "None", c: client.revenueAtRisk > 0 ? RED : GREEN },
-              { l: "Budget Burn", v: `${Math.round((client.spend/client.budget)*100)}%`, c: BLUE },
-              { l: "Completion Rate", v: `${Math.round((client.projectsCompleted/client.projectsTotal)*100)}%`, c: PURPLE },
-            ].map((x, i) => (
-              <div key={i} style={{ background: "rgba(0,0,0,0.3)", borderRadius: 8, padding: "8px 12px", border: "1px solid rgba(255,255,255,0.07)" }}>
-                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>{x.l}</div>
-                <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "monospace", color: x.c }}>{x.v}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Active Initiatives</div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {client.initiatives.map(ini => (
-                <span key={ini} style={{ fontSize: 10, padding: "3px 10px", borderRadius: 12, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.55)" }}>{ini}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FilterBar({ active, setActive }) {
-  const filters = [
-    { k: "all", l: "All Clients", c: "rgba(255,255,255,0.5)" },
-    { k: "red", l: "Blocked", c: RED },
-    { k: "amber", l: "At Risk", c: AMBER },
-    { k: "green", l: "On Track", c: GREEN },
-  ];
-  return (
-    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-      {filters.map(f => (
-        <button key={f.k} onClick={() => setActive(f.k)} style={{
-          padding: "5px 14px", borderRadius: 20, border: `1px solid ${active === f.k ? f.c : "rgba(255,255,255,0.12)"}`,
-          background: active === f.k ? `${f.c}22` : "rgba(255,255,255,0.04)",
-          color: active === f.k ? f.c : "rgba(255,255,255,0.4)",
-          fontSize: 11, fontWeight: 700, cursor: "pointer", letterSpacing: 1,
-          boxShadow: active === f.k ? `0 0 10px ${f.c}44` : "none", transition: "all 0.15s"
-        }}>{f.l}</button>
-      ))}
-      <div style={{ marginLeft: "auto", fontSize: 11, color: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center" }}>
-        ↖ click any client to expand
+      <div style={{display:"flex",flexDirection:"column",gap:5,paddingLeft:8}}>
+        <RAGBadge status={client.status}/>
+        <div style={{fontSize:11,fontFamily:"monospace",color:c,fontWeight:700}}>{client.health}% health</div>
       </div>
-    </div>
-  );
-}
-
-export default function CEODashboard() {
-  const [selected, setSelected] = useState(null);
-  const [filter, setFilter] = useState("all");
-
-  const visible = filter === "all" ? clients : clients.filter(c => c.status === filter);
-
-  return (
-    <div style={{ background: BG, minHeight: "100vh", padding: "16px 18px", fontFamily: "'Inter',sans-serif", color: "#fff",
-      backgroundImage: "radial-gradient(ellipse at 10% 10%,rgba(59,130,246,0.10) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(139,92,246,0.07) 0%,transparent 50%)" }}>
-
-      {/* HEADER */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <div style={{display:"flex",alignItems:"center",gap:8}}>
+        <SatisfactionRing score={client.satisfaction}/>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <div style={{ width: 7, height: 7, borderRadius: "50%", background: GREEN, boxShadow: `0 0 8px ${GREEN}` }} />
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", letterSpacing: 3, textTransform: "uppercase" }}>EVOCS · CEO Portfolio View</span>
-          </div>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, background: "linear-gradient(90deg,#fff,#94a3b8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            Client Portfolio Command Center
-          </h1>
-        </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div style={{ padding: "4px 14px", borderRadius: 20, background: "rgba(239,68,68,0.12)", border: `1px solid ${RED}44`, fontSize: 11, color: RED, fontWeight: 700 }}>
-            {clients.filter(c => c.status === "red").length} Blocked
-          </div>
-          <div style={{ padding: "4px 14px", borderRadius: 20, background: "rgba(245,158,11,0.12)", border: `1px solid ${AMBER}44`, fontSize: 11, color: AMBER, fontWeight: 700 }}>
-            {clients.filter(c => c.status === "amber").length} At Risk
-          </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", marginLeft: 4 }}>Q1 2026 · March 03</div>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:1}}>CSAT</div>
+          <div style={{fontSize:11,color:"rgba(255,255,255,0.6)",fontFamily:"monospace"}}>{client.satisfaction}%</div>
         </div>
       </div>
-
-      {/* PORTFOLIO HUD */}
-      <PortfolioHUD clients={clients} />
-
-      {/* ALERT BAR */}
-      <AlertBar clients={clients} />
-
-      {/* CLIENT ROSTER */}
-      <Card style={{ padding: "16px 16px 8px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <Label style={{ marginBottom: 0 }}>Client Roster — {visible.length} of {clients.length} clients</Label>
+      <div>
+        <div style={{fontSize:13,fontWeight:700,fontFamily:"monospace",color:BLUE}}>{fmt(client.contractValue)}</div>
+        <div style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginTop:1}}>Spend: {fmt(client.spend)}</div>
+        <div style={{marginTop:4}}><MiniBar value={client.spend} max={client.budget} color={BLUE}/></div>
+      </div>
+      <div style={{paddingLeft:8}}>
+        <div style={{fontSize:18,fontWeight:900,fontFamily:"monospace",color:PURPLE,lineHeight:1}}>{client.projectsTotal}</div>
+        <div style={{fontSize:10,color:"rgba(255,255,255,0.35)",marginTop:2}}>total projects</div>
+        <div style={{display:"flex",gap:8,marginTop:4}}>
+          <span style={{fontSize:9,color:AMBER}}>● {client.projectsInProgress} active</span>
+          <span style={{fontSize:9,color:GREEN}}>● {client.projectsCompleted} done</span>
         </div>
-
-        {/* Column headers */}
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr 1.2fr 2fr", gap: 0, padding: "0 16px 8px", borderBottom: "1px solid rgba(255,255,255,0.07)", marginBottom: 8 }}>
-          {["Client / Segment", "RAG Status", "Satisfaction", "Contract / Spend", "Projects", "Risk Summary"].map(h => (
-            <div key={h} style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: 1, paddingLeft: h === "Risk Summary" ? 12 : h === "RAG Status" ? 8 : h === "Projects" ? 8 : 0 }}>{h}</div>
-          ))}
-        </div>
-
-        <FilterBar active={filter} setActive={setFilter} />
-
-        {visible.map(client => (
-          <ClientRow key={client.id} client={client}
-            isSelected={selected?.id === client.id}
-            onClick={() => setSelected(selected?.id === client.id ? null : client)} />
-        ))}
-      </Card>
-
-      <div style={{ textAlign: "center", marginTop: 14, fontSize: 9, color: "rgba(255,255,255,0.15)", letterSpacing: 3 }}>
-        EVOCS · CEO PORTFOLIO VIEW · CONFIDENTIAL · Q1 2026
+      </div>
+      <div style={{paddingLeft:12,borderLeft:"1px solid rgba(255,255,255,0.07)"}}>
+        <div style={{fontSize:9,color:SC[client.status],fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:3}}>{client.status==="green"?"✓ Status Note":client.status==="amber"?"⚠ Risk":"✖ Blocker"}</div>
+        <div style={{fontSize:11,color:"rgba(255,255,255,0.6)",lineHeight:1.4}}>{client.risk}</div>
       </div>
     </div>
-  );
+    {isSelected&&<div style={{padding:"0 16px 14px",borderTop:"1px solid rgba(255,255,255,0.07)",marginTop:4,paddingTop:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10}}>
+        {[
+          {l:"Avg Project Health",v:`${client.avgProjectHealth}%`,c:client.avgProjectHealth>=70?GREEN:client.avgProjectHealth>=50?AMBER:RED},
+          {l:"Revenue at Risk",v:client.revenueAtRisk>0?fmt(client.revenueAtRisk):"None",c:client.revenueAtRisk>0?RED:GREEN},
+          {l:"Budget Burn",v:`${Math.round((client.spend/client.budget)*100)}%`,c:BLUE},
+          {l:"Completion Rate",v:`${Math.round((client.projectsCompleted/client.projectsTotal)*100)}%`,c:PURPLE},
+        ].map((x,i)=><div key={i} style={{background:"rgba(0,0,0,0.3)",borderRadius:8,padding:"8px 12px",border:"1px solid rgba(255,255,255,0.07)"}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>{x.l}</div>
+          <div style={{fontSize:18,fontWeight:800,fontFamily:"monospace",color:x.c}}>{x.v}</div>
+        </div>)}
+      </div>
+      <div style={{marginTop:10}}>
+        <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Active Initiatives</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          {client.initiatives.map(ini=><span key={ini} style={{fontSize:10,padding:"3px 10px",borderRadius:12,background:"rgba(255,255,255,0.07)",border:"1px solid rgba(255,255,255,0.12)",color:"rgba(255,255,255,0.55)"}}>{ini}</span>)}
+        </div>
+      </div>
+    </div>}
+  </div>;
 }
+
+function App(){
+  const [selected,setSelected]=useState(null);
+  const [filter,setFilter]=useState("all");
+  const visible=filter==="all"?clients:clients.filter(c=>c.status===filter);
+  const filters=[{k:"all",l:"All Clients",c:"rgba(255,255,255,0.5)"},{k:"red",l:"Blocked",c:RED},{k:"amber",l:"At Risk",c:AMBER},{k:"green",l:"On Track",c:GREEN}];
+
+  return <div style={{background:BG,minHeight:"100vh",padding:"16px 18px",fontFamily:"'Inter',sans-serif",color:"#fff",backgroundImage:"radial-gradient(ellipse at 10% 10%,rgba(59,130,246,0.10) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(139,92,246,0.07) 0%,transparent 50%)"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+      <div>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+          <div style={{width:7,height:7,borderRadius:"50%",background:GREEN,boxShadow:`0 0 8px ${GREEN}`}}/>
+          <span style={{fontSize:10,color:"rgba(255,255,255,0.35)",letterSpacing:3,textTransform:"uppercase"}}>EVOCS · CEO Portfolio View</span>
+        </div>
+        <h1 style={{margin:0,fontSize:20,fontWeight:800,background:"linear-gradient(90deg,#fff,#94a3b8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Client Portfolio Command Center</h1>
+      </div>
+      <div style={{display:"flex",gap:8,alignItems:"center"}}>
+        <div style={{padding:"4px 14px",borderRadius:20,background:"rgba(239,68,68,0.12)",border:`1px solid ${RED}44`,fontSize:11,color:RED,fontWeight:700}}>{clients.filter(c=>c.status==="red").length} Blocked</div>
+        <div style={{padding:"4px 14px",borderRadius:20,background:"rgba(245,158,11,0.12)",border:`1px solid ${AMBER}44`,fontSize:11,color:AMBER,fontWeight:700}}>{clients.filter(c=>c.status==="amber").length} At Risk</div>
+        <div style={{fontSize:11,color:"rgba(255,255,255,0.25)",marginLeft:4}}>Q1 2026 · March 04</div>
+      </div>
+    </div>
+
+    <PortfolioHUD clients={clients}/>
+    <AlertBar clients={clients}/>
+
+    <Card style={{padding:"16px 16px 8px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <Label style={{marginBottom:0}}>Client Roster — {visible.length} of {clients.length} clients</Label>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 1.2fr 2fr",gap:0,padding:"0 16px 8px",borderBottom:"1px solid rgba(255,255,255,0.07)",marginBottom:8}}>
+        {["Client / Segment","RAG Status","Satisfaction","Contract / Spend","Projects","Risk Summary"].map(h=><div key={h} style={{fontSize:9,color:"rgba(255,255,255,0.25)",textTransform:"uppercase",letterSpacing:1,paddingLeft:h==="Risk Summary"?12:h==="RAG Status"?8:h==="Projects"?8:0}}>{h}</div>)}
+      </div>
+      <div style={{display:"flex",gap:8,marginBottom:12}}>
+        {filters.map(f=><button key={f.k} onClick={()=>setFilter(f.k)} style={{padding:"5px 14px",borderRadius:20,border:`1px solid ${filter===f.k?f.c:"rgba(255,255,255,0.12)"}`,background:filter===f.k?`${f.c}22`:"rgba(255,255,255,0.04)",color:filter===f.k?f.c:"rgba(255,255,255,0.4)",fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:1,transition:"all 0.15s"}}>{f.l}</button>)}
+        <div style={{marginLeft:"auto",fontSize:11,color:"rgba(255,255,255,0.25)",display:"flex",alignItems:"center"}}>↖ click any client to expand</div>
+      </div>
+      {visible.map(client=><ClientRow key={client.id} client={client} isSelected={selected?.id===client.id} onClick={()=>setSelected(selected?.id===client.id?null:client)}/>)}
+    </Card>
+
+    <div style={{textAlign:"center",marginTop:14,fontSize:9,color:"rgba(255,255,255,0.15)",letterSpacing:3}}>EVOCS · CEO PORTFOLIO VIEW · CONFIDENTIAL · Q1 2026</div>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
